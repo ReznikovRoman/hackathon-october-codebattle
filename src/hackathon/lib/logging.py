@@ -35,7 +35,7 @@ class AccessLogFilter(logging.Filter):
 
 
 config = LoggingConfig(
-    root={"level": settings.app.LOG_LEVEL, "handlers": ["queue_listener"]},
+    root={"level": settings.app.LOG_LEVEL, "handlers": ["queue_listener", "console"]},
     filters={
         "health_filter": {
             "()": AccessLogFilter,

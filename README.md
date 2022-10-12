@@ -1,4 +1,4 @@
-# Hackathon CodeBattle
+# CodeBattle Hackathon
 API for October CodeBattle Hackathon.
 
 ## Stack
