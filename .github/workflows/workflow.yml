@@ -86,7 +86,7 @@ jobs:
         include:
           - context: .
             dockerfile: ./dev.Dockerfile
-            image: ${{ secrets.DOCKER_USERNAME }}/hackathon-october-codebattle-backend
+            image: romanreznikov/hackathon-october-codebattle-backend
     permissions:
       contents: read
       packages: write
