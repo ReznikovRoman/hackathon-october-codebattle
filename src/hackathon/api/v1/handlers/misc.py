@@ -1,10 +1,14 @@
 from starlite import Router, get
 
+from hackathon.config.settings import AppSettings, get_settings
 
-@get("/healthcheck", summary="Service health", description="Check service health.")
-async def healthcheck() -> dict:
+settings = get_settings()
+
+
+@get(settings.api.HEALTHCHECK_PATH, summary="Service health")
+async def healthcheck() -> AppSettings:
     """Check service health."""
-    return {"status": "ok"}
+    return settings.app
 
 
 router = Router(path="", tags=["Misc"], route_handlers=[healthcheck])

@@ -92,3 +92,5 @@ pre-commit install
 ## Documentation
 OpenAPI 3 documentation:
 - `${PROJECT_BASE_URL}/api/v1/docs` - Swagger
+- `${PROJECT_BASE_URL}/api/v1/docs/redoc` - ReDoc
+- `${PROJECT_BASE_URL}/api/v1/docs/openapi.json` - OpenAPI json
