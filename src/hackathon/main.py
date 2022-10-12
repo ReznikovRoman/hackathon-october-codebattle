@@ -11,6 +11,7 @@ def create_app() -> Starlite:
     """Starlite app factory."""
     app = Starlite(
         route_handlers=[api_router],
+        debug=settings.app.DEBUG,
         response_class=response.Response,
         openapi_config=openapi.config,
         logging_config=logging.config,
