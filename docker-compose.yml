@@ -1,0 +1,50 @@
+version: '3.9'
+
+services:
+  server:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - $ENV
+    expose:
+      - $HOC_SERVER_PORT
+    volumes:
+      - .:/app
+    command: >
+      sh -c "cd /app/src
+      && python -m uvicorn hackathon.main:create_app --factory --reload --host 0.0.0.0 --port $HOC_SERVER_PORT"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=hackathon"
+      - "traefik.http.routers.hackathon_api.rule=Host(`api.localhost`) || Host(`traefik`)"
+      - "traefik.http.routers.hackathon_api.entrypoints=web,web_secure"
+    networks:
+      - hackathon_api
+
+  traefik:
+    image: traefik:v2.9
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web_secure.address=:443"
+      - "--tracing.jaeger=true"
+      - "--tracing.jaeger.samplingParam=0"
+      - "--tracing.jaeger.traceContextHeaderName=X-Request-Id"
+    ports:
+      - "8000:80"
+      - "8085:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    depends_on:
+      - server
+    networks:
+      - hackathon_api
+
+networks:
+  hackathon_api:
+    name: hackathon_api
+    driver: bridge

@@ -1,0 +1,27 @@
+version: '3.9'
+
+services:
+  server:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - $ENV
+    environment:
+      - HOC_PROJECT_BASE_URL=http://localhost:${HOC_SERVER_PORT}
+      - HOC_SERVER_HOSTS=http://localhost:${HOC_SERVER_PORT}
+    ports:
+      - ${HOC_SERVER_PORT}:${HOC_SERVER_PORT}
+    volumes:
+      - .:/app
+    command: >
+      sh -c "cd /app/src
+      && python -m uvicorn hackathon.main:create_app --factory --reload --host 0.0.0.0 --port $HOC_SERVER_PORT"
+    networks:
+      - hackathon_api
+
+networks:
+  hackathon_api:
+    name: hackathon_api
+    driver: bridge

@@ -1,0 +1,17 @@
+{
+  "Verbose": false,
+  "Debug": false,
+  "IgnoreDefaults": true,
+  "SpacesAftertabs": false,
+  "NoColor": false,
+  "Exclude": [
+    "\\.mo$",
+    "\\.txt$",
+    "\\.pyc$"
+  ],
+  "AllowedContentTypes": [],
+  "PassedFiles": [],
+  "Disable": {
+    "IndentSize": true
+  }
+}
