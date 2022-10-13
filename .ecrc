@@ -7,7 +7,8 @@
   "Exclude": [
     "\\.mo$",
     "\\.txt$",
-    "\\.pyc$"
+    "\\.pyc$",
+    "sqlalchemy_plugin.py"
   ],
   "AllowedContentTypes": [],
   "PassedFiles": [],

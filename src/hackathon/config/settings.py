@@ -28,12 +28,24 @@ class AppSettings(BaseSettings):
         env_prefix = "HOC_"
         case_sensitive = True
 
+    @property
+    def slug(self) -> str:
+        """A slugified name.
+
+        Returns: `self.PROJECT_NAME`, all lowercase and hyphens instead of spaces.
+        """
+        return "-".join(s.lower() for s in self.PROJECT_NAME.split())
+
 
 class APISettings(BaseSettings):
     """API specific settings."""
 
     V1_STR: str = Field("/api/v1")
     HEALTHCHECK_PATH: str = Field("/healthcheck")
+
+    CONFIG_DEPENDENCY_KEY: str = Field("config")
+    REDIS_CLIENT_DEPENDENCY_KEY: str = Field("redis_client")
+    DB_SESSION_DEPENDENCY_KEY: str = Field("db_session")
 
     class Config(EnvConfig):
         env_prefix = "HOC_API"
