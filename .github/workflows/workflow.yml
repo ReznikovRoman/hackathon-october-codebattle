@@ -35,6 +35,29 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:7.0-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      db:
+        image: postgres:14.5-alpine
+        env:
+          POSTGRES_USER: github
+          POSTGRES_PASSWORD: ci_pass
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd "pg_isready -d test_db -U github"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python 3.10
@@ -63,6 +86,23 @@ jobs:
           export HOC_PROJECT_BASE_URL=http://api.localhost:8000
           export HOC_API_V1_STR=/api/v1
           export HOC_API_HEALTHCHECK_PATH=/healthcheck
+          export HOC_DB_ECHO=false
+          export HOC_DB_ECHO_POOL=false
+          export HOC_DB_POOL_DISABLE=false
+          export HOC_DB_POOL_MAX_OVERFLOW=10
+          export HOC_DB_POOL_SIZE=5
+          export HOC_DB_POOL_TIMEOUT=30
+          export HOC_DB_HOST=localhost
+          export HOC_DB_PORT=5432
+          export HOC_DB_NAME=test_db
+          export HOC_DB_USER=github
+          export HOC_DB_PASSWORD=ci_pass
+          export HOC_REDIS_HOST=localhost
+          export HOC_REDIS_PORT=6379
+          export HOC_REDIS_DB=0
+          export HOC_REDIS_DEFAULT_CHARSET=utf-8
+          export HOC_REDIS_DECODE_RESPONSES=1
+          export HOC_REDIS_RETRY_ON_TIMEOUT=1
           export HOC_OPENAPI_TITLE="Hackathon CodeBattle API"
           export HOC_OPENAPI_VERSION=0.1.0
           export HOC_OPENAPI_CONTACT_NAME="Full Name"
