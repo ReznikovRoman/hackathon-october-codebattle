@@ -8,6 +8,7 @@
     "\\.mo$",
     "\\.txt$",
     "\\.pyc$",
+    "alembic",
     "sqlalchemy_plugin.py"
   ],
   "AllowedContentTypes": [],
