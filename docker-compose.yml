@@ -13,8 +13,9 @@ services:
     volumes:
       - .:/app
     command: >
-      sh -c "cd /app/src
-      && python -m uvicorn hackathon.main:create_app --factory --reload --host 0.0.0.0 --port $HOC_SERVER_PORT"
+      sh -c "make migrate-local
+      && cd /app/src
+      && uvicorn hackathon.main:create_app --factory --reload --host 0.0.0.0 --port $HOC_SERVER_PORT"
     depends_on:
       db:
         condition: service_healthy
