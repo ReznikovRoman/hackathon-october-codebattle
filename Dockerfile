@@ -12,6 +12,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
         tzdata \
         gcc \
+        make \
         libpq-dev \
         musl-dev \
         libc-dev \
