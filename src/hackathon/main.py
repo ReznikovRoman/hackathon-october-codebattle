@@ -50,4 +50,5 @@ def create_app() -> Starlite:
         on_startup=[partial(on_startup, container=container)],
         static_files_config=static_files.config,
     )
+    app.state.container = container  # XXX: have to manually specify `container` for unit tests
     return app
