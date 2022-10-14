@@ -2,7 +2,7 @@ from typing import AsyncIterator
 
 import redis.asyncio as aioredis
 
-from hackathon.config.settings import RedisSettings, Settings
+from hackathon.config.settings import RedisSettings
 
 
 async def init_redis(config: RedisSettings) -> AsyncIterator[aioredis.Redis]:
@@ -14,9 +14,3 @@ async def init_redis(config: RedisSettings) -> AsyncIterator[aioredis.Redis]:
     )
     yield redis_client
     await redis_client.close()
-
-
-async def get_redis_client(config: Settings) -> aioredis.Redis:
-    """Dependency for retrieving a Redis client."""
-    redis_client = init_redis(config.redis)
-    return await anext(redis_client)

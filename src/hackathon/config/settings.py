@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Literal, Union
+from typing import Final, Literal, Union
 
 from pydantic import AnyHttpUrl, BaseSettings, Field, PostgresDsn, RedisDsn, validator
 
@@ -43,6 +43,7 @@ class APISettings(BaseSettings):
     V1_STR: str = Field("/api/v1")
     HEALTHCHECK_PATH: str = Field("/healthcheck")
 
+    CONTAINER_DEPENDENCY_KEY: Final[str] = "container"
     CONFIG_DEPENDENCY_KEY: str = Field("config")
     REDIS_CLIENT_DEPENDENCY_KEY: str = Field("redis_client")
     DB_SESSION_DEPENDENCY_KEY: str = Field("db_session")

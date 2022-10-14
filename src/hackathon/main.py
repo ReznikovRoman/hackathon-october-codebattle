@@ -5,17 +5,12 @@ from starlite.plugins.sql_alchemy import SQLAlchemyPlugin
 
 from hackathon.api.urls import api_router
 from hackathon.config.settings import get_settings
-from hackathon.infrastructure.db import redis
 from hackathon.lib import compression, exceptions, logging, openapi, response, sqlalchemy_plugin, static_files
 
 from .containers import Container, override_providers
+from .dependencies import create_dependencies
 
 settings = get_settings()
-
-dependencies = {
-    settings.api.CONFIG_DEPENDENCY_KEY: Provide(get_settings),
-    settings.api.REDIS_CLIENT_DEPENDENCY_KEY: Provide(redis.get_redis_client),
-}
 
 
 async def on_startup(*_, container: Container, **__) -> None:
@@ -34,6 +29,13 @@ def create_app() -> Starlite:
     container = Container()
     container.config.from_pydantic(settings=settings)
     container = override_providers(container)
+
+    def get_container() -> Container:
+        """Dependency for retrieving a DI container."""
+        return container
+
+    dependencies = {settings.api.CONTAINER_DEPENDENCY_KEY: Provide(get_container)}
+    dependencies.update(create_dependencies())
 
     app = Starlite(
         after_exception=[exceptions.after_exception_hook_handler],

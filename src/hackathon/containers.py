@@ -27,7 +27,7 @@ class Container(containers.DeclarativeContainer):
     )
 
 
-def override_providers(container: Container) -> Container:
+def override_providers(container: Container, /) -> Container:
     """Override providers with stubs."""
     if not container.config.USE_STUBS():
         return container
