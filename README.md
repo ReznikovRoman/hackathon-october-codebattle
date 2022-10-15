@@ -8,13 +8,14 @@ API for October CodeBattle Hackathon.
 
 ## Configuration
 Docker containers:
- 1. server
- 2. traefik
+1. server
+2. db
+3. redis
+4. traefik
 
 docker-compose files:
  1. `docker-compose.yml` - for local development.
- 2. `docker-compose-dev.yml` - for local development (without traefik).
- 3. `tests/functional/docker-compose.yml` - for functional tests.
+ 2. `tests/functional/docker-compose.yml` - for functional tests.
 
 To run docker containers, you need to create a `.env` file in the root directory.
 

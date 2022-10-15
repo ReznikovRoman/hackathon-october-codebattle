@@ -3,15 +3,17 @@ version: '3.9'
 services:
   server:
     restart: always
+    image: hackathon-october-codebattle-test
     build:
-      context: .
+      context: ../../.
       dockerfile: Dockerfile
     env_file:
       - $ENV
     expose:
       - $HOC_SERVER_PORT
     volumes:
-      - .:/app
+      - ./../../src:/app/src
+      - .:/app/tests/functional
     command: >
       sh -c "make migrate-local
       && cd /app/src
@@ -31,17 +33,13 @@ services:
 
   redis:
     image: redis:7.0-alpine
-    ports:
-      - "6380:6379"
-    volumes:
-      - redis_data:/data
+    expose:
+      - 6379
     healthcheck:
       test: redis-cli -p 6379 ping || exit 1
       interval: 5s
       timeout: 5s
       retries: 5
-    networks:
-      - hackathon_api
 
   db:
     image: postgres:14.5-alpine
@@ -49,17 +47,13 @@ services:
       - POSTGRES_USER=${HOC_DB_USER}
       - POSTGRES_PASSWORD=${HOC_DB_PASSWORD}
       - POSTGRES_DB=${HOC_DB_NAME}
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
+    expose:
+      - 5432
     healthcheck:
       test: pg_isready -d $HOC_DB_NAME -U $HOC_DB_USER
       interval: 5s
       timeout: 5s
       retries: 5
-    networks:
-      - hackathon_api
 
   traefik:
     image: traefik:v2.9
@@ -82,11 +76,26 @@ services:
     networks:
       - hackathon_api
 
+  test:
+    restart: on-failure
+    image: hackathon-october-codebattle-test
+    env_file:
+      - $ENV
+    volumes:
+      - ./../../src:/app/src
+      - ./../../tests:/app/tests
+      - .:/app/tests/functional
+    command: >
+      sh -c "cd /app
+      && python -m pytest tests/functional
+      "
+    depends_on:
+      - db
+      - redis
+      - traefik
+      - server
+
 networks:
   hackathon_api:
     name: hackathon_api
     driver: bridge
-
-volumes:
-  redis_data:
-  postgres_data:

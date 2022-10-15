@@ -12,11 +12,12 @@ dependency-injector==4.40.0
 starlite==1.27.0
 starlite-jwt==1.4.0
 
-aioredis==2.0.1
+redis==4.3.4
 redis-om==0.0.27
 hiredis==2.0.0
 asyncpg==0.26.0
-SQLAlchemy==1.4.41
+# SQLAlchemy 2
+https://github.com/sqlalchemy/sqlalchemy/archive/cb0dd78f584cea4f169a47a2f4660300f4a6e081.zip
 alembic==1.8.1
 
 loguru==0.6.0

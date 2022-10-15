@@ -25,6 +25,22 @@ tf:
 dtf:
 	cd $(FUNCTIONAL_TESTS_DIR) && docker-compose up test
 
+.PHONY: makemigrations
+makemigrations:
+ifdef name
+	docker-compose run --rm server sh -c "alembic revision --autogenerate -m '$(name)'"
+else
+	docker-compose run --rm server sh -c "alembic revision --autogenerate -m 'auto'"
+endif
+
+.PHONY: migrate
+migrate:
+	docker-compose run --rm server sh -c "alembic upgrade head"
+
+.PHONY: migrate-local
+migrate-local:
+	alembic upgrade head
+
 .PHONY: check
 check: lint test
 
