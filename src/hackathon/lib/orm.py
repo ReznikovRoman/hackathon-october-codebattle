@@ -12,7 +12,7 @@ from . import dto
 if TYPE_CHECKING:
     from pydantic import BaseModel
 
-T_base = TypeVar("T_base", bound="Base")
+BaseT = TypeVar("BaseT", bound="Base")
 
 # Templates for automated constraint name generation
 convention = {
@@ -58,7 +58,7 @@ class Base(DeclarativeBase):
         return cls.__name__.lower()
 
     @classmethod
-    def from_dto(cls: type[T_base], dto_instance: "BaseModel") -> T_base:
+    def from_dto(cls: type[BaseT], dto_instance: "BaseModel") -> BaseT:
         """Construct an instance of the SQLAlchemy model from the Pydantic DTO.
 
         Args:
