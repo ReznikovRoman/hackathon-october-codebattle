@@ -6,8 +6,10 @@ __all__ = [
     "logging",
     "openapi",
     "orm",
+    "repositories",
     "response",
     "schemas",
+    "services",
     "sqlalchemy_plugin",
     "static_files",
 ]
