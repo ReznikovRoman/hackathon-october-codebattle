@@ -139,5 +139,5 @@ def server_exception_to_http_response(request: Request, exc: Exception) -> Respo
     if request.app.debug:
         return _create_error_response_from_starlite_middleware(request, exc)
     status_code = HTTPStatus.INTERNAL_SERVER_ERROR
-    content = BaseErrorResponse(error=ErrorResponse())
+    content = BaseErrorResponse(error=ErrorResponse(message=str(exc)))
     return Response(media_type=MediaType.JSON, content=content.json(exclude_none=True), status_code=status_code)
