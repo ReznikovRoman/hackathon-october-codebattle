@@ -862,9 +862,9 @@ starlette==0.21.0 \
     --hash=sha256:0efc058261bbcddeca93cad577efd36d0c8a317e44376bcfc0e097a2b3dc24a7 \
     --hash=sha256:b1b52305ee8f7cfc48cde383496f7c11ab897cd7112b33d998b1317dc8ef9027
     # via starlite
-starlite==1.27.0 \
-    --hash=sha256:e13f4f3559b59f0b6aa615ef57d53369788ed4960fd38b229bb9803acbc67a96 \
-    --hash=sha256:f455a9eb53b38e8d079f170f7fa7212497ade0ae05d545a7041738f69504a581
+starlite==1.28.0 \
+    --hash=sha256:00dfb550d20ec7bc171da70543e258fe6b81dc3dedaf8545dc9c76107986f742 \
+    --hash=sha256:481746b01a1f0a57b1615ee5f3af4749c8e799a51a32f40769dabb397d9bb7a5
     # via
     #   -r requirements.in
     #   starlite-jwt
