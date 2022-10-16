@@ -86,6 +86,7 @@ jobs:
           export HOC_PROJECT_BASE_URL=http://api.localhost:8000
           export HOC_API_V1_STR=/api/v1
           export HOC_API_HEALTHCHECK_PATH=/healthcheck
+          export HOC_API_DEFAULT_PAGINATION_LIMIT=10
           export HOC_API_CONFIG_DEPENDENCY_KEY=config
           export HOC_API_REDIS_CLIENT_DEPENDENCY_KEY=redis_client
           export HOC_API_DB_SESSION_DEPENDENCY_KEY=db_session
