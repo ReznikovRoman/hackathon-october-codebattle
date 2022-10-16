@@ -2,7 +2,7 @@ from collections import abc
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, Literal, TypeVar
 
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.engine import Result
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
@@ -122,6 +122,18 @@ class SQLAlchemyRepository(AbstractRepository[ModelT]):
             self._session.expunge(instance)
             return instance
 
+    @classmethod
+    async def check_health(cls, db_session: "AsyncSession") -> bool:
+        """Perform a health check on the database.
+
+        Args:
+            db_session: session through which we run a check statement.
+
+        Returns:
+            `True` if healthy.
+        """
+        return (await db_session.execute(text("SELECT 1"))).scalar_one() == 1
+
     # the following is all sqlalchemy implementation detail, and shouldn't be directly accessed
 
     def _apply_limit_offset_pagination(self, limit: int, offset: int) -> None:
@@ -148,9 +160,13 @@ class SQLAlchemyRepository(AbstractRepository[ModelT]):
         return await self._session.execute(self._select)
 
     def _filter_in_collection(self, field_name: str, values: abc.Collection[Any]) -> None:
+        if not values:
+            return
         self._select = self._select.where(getattr(self.model_type, field_name).in_(values))
 
-    def _filter_like_collection(self, field_name: str, query: str) -> None:
+    def _filter_like_collection(self, field_name: str, query: str | None = None) -> None:
+        if query is None:
+            return
         self._select = self._select.where(getattr(self.model_type, field_name).like("%{query}%".format(query=query)))
 
     def _filter_on_datetime_field(self, field_name: str, before: "datetime | None", after: "datetime | None") -> None:
