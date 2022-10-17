@@ -78,6 +78,7 @@ class SQLAlchemyRepository(AbstractRepository[ModelT]):
     async def get(self, id_: Any) -> ModelT:
         with wrap_sqlalchemy_exception():
             self._filter_select_by_kwargs(**{self.id_attribute: id_})
+            self.before_get_execute(id_)
             instance = (await self._execute()).scalar_one_or_none()
             instance = self.check_not_found(instance)
             self._session.expunge(instance)
@@ -97,6 +98,7 @@ class SQLAlchemyRepository(AbstractRepository[ModelT]):
         self._filter_select_by_kwargs(**kwargs)
 
         with wrap_sqlalchemy_exception():
+            self.before_list_execute(*filters, **kwargs)
             result = await self._execute()
             instances = list(result.scalars())
             for instance in instances:
@@ -122,6 +124,26 @@ class SQLAlchemyRepository(AbstractRepository[ModelT]):
             await self._session.refresh(instance)
             self._session.expunge(instance)
             return instance
+
+    def before_get_execute(self, id_: Any) -> None:
+        """Perform an action before executing `get` method.
+
+        For example:
+            ```python
+            def before_get_execute(self, id_: Any) -> None:
+                self._session = self._session.options(selectinload(Author.books))
+            ```
+        """
+
+    def before_list_execute(self, *filters: "FilterTypes", **kwargs: Any) -> None:
+        """Perform an action before executing `list` method.
+
+        For example:
+            ```python
+            def before_list_execute(self, *filters: "FilterTypes", **kwargs: Any) -> None:
+                self._session = self._session.options(selectinload(Author.books))
+            ```
+        """
 
     @classmethod
     async def check_health(cls, db_session: "AsyncSession") -> bool:
