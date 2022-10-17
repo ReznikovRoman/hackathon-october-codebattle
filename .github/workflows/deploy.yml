@@ -42,3 +42,16 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}, ${{ matrix.image }}:latest
           labels: ${{ steps.meta.outputs.labels }}
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy project
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY_ED25519 }}
+          port: ${{ secrets.PORT }}
+          script: sh deploy.prod.sh
