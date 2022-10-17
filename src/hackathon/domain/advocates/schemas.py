@@ -50,8 +50,14 @@ class AdvocateShortDetailSchema(Schema, AdvocateBaseSchema):
 
 
 class AdvocateDetailSchema(Schema, AdvocateBaseSchema):
+    """Advocate detail."""
+
+    long_bio: str
+
+
+class AdvocateFullDetailSchema(Schema, AdvocateBaseSchema):
     """Advocate full detail."""
 
     long_bio: str
 
-    social_account: SocialAccountShortDetailSchema
+    social_account: SocialAccountShortDetailSchema | None

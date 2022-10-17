@@ -8,7 +8,8 @@ from hackathon.dependencies import (
     SEARCH_FILTER_DEPENDENCY_KEY, provide_advocate_service, search_filter_provider_factory,
 )
 from hackathon.domain.advocates import (
-    Advocate, AdvocateCreateSchema, AdvocateDetailSchema, AdvocateService, AdvocateShortDetailSchema,
+    Advocate, AdvocateCreateSchema, AdvocateDetailSchema, AdvocateFullDetailSchema, AdvocateService,
+    AdvocateShortDetailSchema,
 )
 from hackathon.lib.repositories.filters import SearchFilter
 from hackathon.lib.repositories.types import FilterTypes
@@ -42,10 +43,10 @@ class AdvocateController(Controller):
         return AdvocateDetailSchema.from_orm(await service.create(Advocate.from_dto(data)))
 
     @get(member_path)
-    async def get_advocate(self, advocate_id: UUID, service: AdvocateService) -> AdvocateDetailSchema:
+    async def get_advocate(self, advocate_id: UUID, service: AdvocateService) -> AdvocateFullDetailSchema:
         """Get advocate by ID."""
         advocate = await service.get(advocate_id)
-        return AdvocateDetailSchema.from_orm(advocate)
+        return AdvocateFullDetailSchema.from_orm(advocate)
 
     @patch(member_path)
     async def patch_advocate(

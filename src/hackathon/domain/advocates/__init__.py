@@ -1,8 +1,8 @@
 from .models import Advocate, SocialAccount
 from .repositories import AdvocateRepository, SocialAccountRepository
 from .schemas import (
-    AdvocateCreateSchema, AdvocateDetailSchema, AdvocateShortDetailSchema, SocialAccountCreateSchema,
-    SocialAccountFullDetailSchema, SocialAccountShortDetailSchema,
+    AdvocateCreateSchema, AdvocateDetailSchema, AdvocateFullDetailSchema, AdvocateShortDetailSchema,
+    SocialAccountCreateSchema, SocialAccountFullDetailSchema, SocialAccountShortDetailSchema,
 )
 from .services import AdvocateService, SocialAccountService
 
@@ -19,4 +19,5 @@ __all__ = [
     "AdvocateCreateSchema",
     "AdvocateShortDetailSchema",
     "AdvocateDetailSchema",
+    "AdvocateFullDetailSchema",
 ]
