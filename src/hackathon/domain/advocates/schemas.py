@@ -1,14 +1,16 @@
 import uuid
 
+from pydantic import AnyUrl
+
 from hackathon.lib.schemas import BaseOrjsonSchema, OrjsonSchema, Schema
 
 
 class SocialAccountBaseSchema(BaseOrjsonSchema):
     """Social account base schema."""
 
-    github: str | None
-    linkedin: str | None
-    youtube: str | None
+    github: AnyUrl | None
+    linkedin: AnyUrl | None
+    youtube: AnyUrl | None
 
 
 class SocialAccountUpdateSchema(SocialAccountBaseSchema, OrjsonSchema):
@@ -36,6 +38,7 @@ class AdvocateCompanySchema(Schema):
 
     name: str
     summary: str
+    photo_url: AnyUrl | None
 
 
 class AdvocateBaseSchema(BaseOrjsonSchema):
@@ -44,6 +47,7 @@ class AdvocateBaseSchema(BaseOrjsonSchema):
     name: str
     short_bio: str
     years_of_experience: int
+    photo_url: AnyUrl | None
 
 
 class AdvocateCreateSchema(AdvocateBaseSchema, OrjsonSchema):

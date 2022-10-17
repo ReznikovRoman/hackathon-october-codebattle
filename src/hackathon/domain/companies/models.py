@@ -15,5 +15,6 @@ class Company(orm.Base):
 
     name: Mapped[str] = mapped_column(index=True, unique=True)
     summary: Mapped[str]
+    photo_url: Mapped[str | None]
 
     advocates: Mapped[list["Advocate"]] = relationship("Advocate", back_populates="company", lazy="subquery")

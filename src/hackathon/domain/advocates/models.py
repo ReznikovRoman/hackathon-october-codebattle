@@ -21,6 +21,7 @@ class Advocate(orm.Base):
     short_bio: Mapped[str]
     long_bio: Mapped[str]
     years_of_experience: Mapped[int]
+    photo_url: Mapped[str | None]
 
     company: Mapped["Company"] = relationship("Company", back_populates="advocates", lazy="subquery")
     social_account: Mapped["SocialAccount"] = relationship("SocialAccount", back_populates="advocate", uselist=False)
