@@ -33,7 +33,8 @@ class AdvocateController(Controller):
         filters: list[FilterTypes] = Dependency(skip_validation=True),
     ) -> list[AdvocateShortDetailSchema]:
         """Get a list of advocates."""
-        return [AdvocateShortDetailSchema.from_orm(item) for item in await service.list(search_filter, *filters)]
+        filters.append(search_filter)
+        return [AdvocateShortDetailSchema.from_orm(item) for item in await service.list(*filters)]
 
     @post()
     async def create_advocate(self, data: AdvocateCreateSchema, service: AdvocateService) -> AdvocateDetailSchema:

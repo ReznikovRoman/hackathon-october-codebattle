@@ -33,6 +33,16 @@ class Container(containers.DeclarativeContainer):
 
     # Domain -> Advocates
 
+    social_account_repository = providers.Factory(
+        advocates.SocialAccountRepository,
+        session=db_session,
+    )
+
+    social_account_service = providers.Factory(
+        advocates.SocialAccountService,
+        repository=social_account_repository,
+    )
+
     advocate_repository = providers.Factory(
         advocates.AdvocateRepository,
         session=db_session,

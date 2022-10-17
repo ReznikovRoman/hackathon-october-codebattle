@@ -33,6 +33,14 @@ async def provide_redis_client(state: State) -> aioredis.Redis:
     return await container.redis_connection()
 
 
+def provide_social_account_service(db_session: AsyncSession) -> advocates.SocialAccountService:
+    """Provide Social Account Service."""
+    # TODO: use custom session maker (not from Starlite plugin)
+    #  - https://python-dependency-injector.ets-labs.org/examples/fastapi-sqlalchemy.html#database
+    repository = advocates.SocialAccountRepository(session=db_session)
+    return advocates.SocialAccountService(repository=repository)
+
+
 def provide_advocate_service(db_session: AsyncSession) -> advocates.AdvocateService:
     """Provide Advocate Service."""
     # TODO: use custom session maker (not from Starlite plugin)

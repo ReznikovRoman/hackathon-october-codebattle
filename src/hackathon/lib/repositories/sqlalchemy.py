@@ -23,6 +23,7 @@ if TYPE_CHECKING:
 __all__ = [
     "SQLAlchemyRepository",
     "ModelT",
+    "wrap_sqlalchemy_exception",
 ]
 
 T = TypeVar("T")
