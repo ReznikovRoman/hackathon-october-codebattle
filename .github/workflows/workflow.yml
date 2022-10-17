@@ -131,9 +131,6 @@ jobs:
           - context: .
             dockerfile: ./dev.Dockerfile
             image: romanreznikov/hackathon-october-codebattle-backend-dev
-          - context: .
-            dockerfile: ./prod.Dockerfile
-            image: romanreznikov/hackathon-october-codebattle-backend
     permissions:
       contents: read
       packages: write
