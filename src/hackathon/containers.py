@@ -1,9 +1,12 @@
 from dependency_injector import containers, providers
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import sessionmaker
 
 from hackathon.config.settings import get_settings
+from hackathon.domain import advocates
 from hackathon.infrastructure.db import redis
 
-__all__ = ["Container", "override_providers"]
+__all__ = ["Container", "override_providers", "inject_db_session"]
 
 settings = get_settings()
 
@@ -21,10 +24,40 @@ class Container(containers.DeclarativeContainer):
 
     # Infrastructure
 
+    db_session = providers.Dependency(instance_of=AsyncSession)
+
     redis_connection = providers.Resource(
         redis.init_redis,
         config=settings.redis,
     )
+
+    # Domain -> Advocates
+
+    social_account_repository = providers.Factory(
+        advocates.SocialAccountRepository,
+        session=db_session,
+    )
+
+    social_account_service = providers.Factory(
+        advocates.SocialAccountService,
+        repository=social_account_repository,
+    )
+
+    advocate_repository = providers.Factory(
+        advocates.AdvocateRepository,
+        session=db_session,
+    )
+
+    advocate_service = providers.Factory(
+        advocates.AdvocateService,
+        repository=advocate_repository,
+    )
+
+
+def inject_db_session(container: Container, session_maker: sessionmaker) -> Container:
+    """Inject SQLAlchemy session into container."""
+    container.db_session.override(providers.Singleton(session_maker))
+    return container
 
 
 def override_providers(container: Container, /) -> Container:

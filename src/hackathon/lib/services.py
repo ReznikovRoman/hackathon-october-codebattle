@@ -1,20 +1,22 @@
-from typing import TYPE_CHECKING, Any, Generic
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
+from .repositories.abc import AbstractRepository
 from .repositories.sqlalchemy import ModelT
 
 if TYPE_CHECKING:
-    from .repositories.abc import AbstractRepository
     from .repositories.types import FilterTypes
 
+RepositoryT = TypeVar("RepositoryT", bound=AbstractRepository)
 
-class Service(Generic[ModelT]):
+
+class Service(Generic[ModelT, RepositoryT]):
     """Generic Service object.
 
     Attributes:
         repository: Instance conforming to `AbstractRepository` interface.
     """
 
-    def __init__(self, repository: "AbstractRepository[ModelT]") -> None:
+    def __init__(self, repository: "RepositoryT") -> None:
         self.repository = repository
 
     # noinspection PyMethodMayBeStatic

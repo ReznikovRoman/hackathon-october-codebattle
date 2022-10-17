@@ -43,6 +43,8 @@ class APISettings(BaseSettings):
     V1_STR: str = Field("/api/v1")
     HEALTHCHECK_PATH: str = Field("/healthcheck")
 
+    DEFAULT_PAGINATION_LIMIT: int = Field(10)
+
     CONTAINER_DEPENDENCY_KEY: Final[str] = "container"
     CONFIG_DEPENDENCY_KEY: str = Field("config")
     REDIS_CLIENT_DEPENDENCY_KEY: str = Field("redis_client")

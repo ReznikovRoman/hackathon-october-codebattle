@@ -7,14 +7,15 @@ from hackathon.api.urls import api_router
 from hackathon.config.settings import get_settings
 from hackathon.lib import compression, exceptions, logging, openapi, response, sqlalchemy_plugin, static_files
 
-from .containers import Container, override_providers
-from .dependencies import create_dependencies
+from .containers import Container, inject_db_session, override_providers
+from .dependencies import create_project_dependencies
 
 settings = get_settings()
 
 
 async def on_startup(state: State, *_, container: Container, **__) -> None:
     """Startup hook."""
+    container = inject_db_session(container, state.get("session_maker_class"))
     await container.init_resources()
     container.check_dependencies()
     state.container = container
@@ -31,7 +32,7 @@ def create_app() -> Starlite:
     container.config.from_pydantic(settings=settings)
     container = override_providers(container)
 
-    dependencies = create_dependencies()
+    dependencies = create_project_dependencies()
     app = Starlite(
         after_exception=[exceptions.after_exception_hook_handler],
         compression_config=compression.config,
