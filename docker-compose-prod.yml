@@ -2,28 +2,22 @@ version: '3.9'
 
 services:
   server:
-    restart: always
-    image: romanreznikov/hackathon-october-codebattle-backend  # TODO: use git tags
+    restart: on-failure
+    image: romanreznikov/hackathon-october-codebattle-backend:0.1.3
     environment:
-      - ENV=.env
-      # Python
       - PYTHONUNBUFFERED=1
-      # CodeBattle Hackathon
-      # App
-      - HOC_BUILD_NUMBER=0.1.0
+      - HOC_BUILD_NUMBER=0.1.3
       - HOC_DEBUG=0
       - HOC_ENVIRONMENT=prod
       - HOC_LOG_LEVEL=INFO
       - HOC_PROJECT_NAME=hackathon-codebattle
-      - HOC_PROJECT_BASE_URL=http://localhost:8000  # TODO: change URL
-      # API
+      - HOC_PROJECT_BASE_URL=http://51.250.36.15
       - HOC_API_V1_STR=/api/v1
       - HOC_API_HEALTHCHECK_PATH=/healthcheck
       - HOC_API_DEFAULT_PAGINATION_LIMIT=10
       - HOC_API_CONFIG_DEPENDENCY_KEY=config
       - HOC_API_REDIS_CLIENT_DEPENDENCY_KEY=redis_client
       - HOC_API_DB_SESSION_DEPENDENCY_KEY=db_session
-      # Database
       - HOC_DB_ECHO=false
       - HOC_DB_ECHO_POOL=false
       - HOC_DB_POOL_DISABLE=false
@@ -35,27 +29,24 @@ services:
       - HOC_DB_NAME=hackathon-october-codebattle
       - HOC_DB_USER=hackathon
       - HOC_DB_PASSWORD=codebattle
-      # Redis
       - HOC_REDIS_HOST=redis
       - HOC_REDIS_PORT=6379
       - HOC_REDIS_DB=0
       - HOC_REDIS_DEFAULT_CHARSET=utf-8
       - HOC_REDIS_DECODE_RESPONSES=1
       - HOC_REDIS_RETRY_ON_TIMEOUT=1
-      # OpenAPI
-      - HOC_OPENAPI_TITLE="Hackathon CodeBattle API"
+      - HOC_OPENAPI_TITLE=HackathonCodeBattleAPI
       - HOC_OPENAPI_VERSION=0.1.0
-      - HOC_OPENAPI_CONTACT_NAME="Roman Reznikov"
+      - HOC_OPENAPI_CONTACT_NAME=RomanReznikov
       - HOC_OPENAPI_CONTACT_EMAIL=romanreznikov.am@gmail.com
-      # Server
-      - HOC_SERVER_PORT=8000
+      - HOC_SERVER_PORT=80
       - HOC_SERVER_NAME=localhost
-      - HOC_SERVER_HOSTS=http://localhost:8000  # TODO: change URL
+      - HOC_SERVER_HOSTS=http://51.250.36.15
       - HOC_USE_STUBS=0
       - HOC_TESTING=0
       - HOC_CI=0
     ports:
-      - "${HOC_SERVER_PORT}:${HOC_SERVER_PORT}"
+      - "80:80"
     depends_on:
       db:
         condition: service_healthy
@@ -64,6 +55,8 @@ services:
 
   redis:
     image: redis:7.0-alpine
+    expose:
+      - 6379
     volumes:
       - /mnt/data/redis:/data
     healthcheck:
@@ -74,14 +67,16 @@ services:
 
   db:
     image: postgres:14.5-alpine
+    expose:
+      - 5432
     environment:
-      - POSTGRES_USER=${HOC_DB_USER}
-      - POSTGRES_PASSWORD=${HOC_DB_PASSWORD}
-      - POSTGRES_DB=${HOC_DB_NAME}
+      - POSTGRES_USER=hackathon
+      - POSTGRES_PASSWORD=codebattle
+      - POSTGRES_DB=hackathon-october-codebattle
     volumes:
       - /mnt/data/postgres:/var/lib/postgresql/data/
     healthcheck:
-      test: pg_isready -d $HOC_DB_NAME -U $HOC_DB_USER
+      test: pg_isready -d hackathon-october-codebattle -U hackathon
       interval: 5s
       timeout: 5s
       retries: 5

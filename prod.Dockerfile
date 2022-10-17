@@ -67,11 +67,11 @@ EXPOSE 8000
 
 # Copy configuration files
 COPY ./scripts /app/scripts
-RUN chmod +x /app/scripts/docker/entrypoint.sh
+RUN chmod +x /app/scripts/docker/entrypoint.prod.sh
 
 # Copy project
 COPY . .
 
 # Spin up server
 WORKDIR /app/src
-CMD ["/app/scripts/docker/entrypoint.sh"]
+CMD ["/app/scripts/docker/entrypoint.prod.sh"]
