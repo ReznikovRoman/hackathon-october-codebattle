@@ -1,4 +1,4 @@
-from pydantic import validator
+from pydantic import AnyUrl, validator
 
 from hackathon.lib.schemas import BaseOrjsonSchema, OrjsonSchema, Schema
 
@@ -9,6 +9,7 @@ class AdvocateCompanySchema(Schema):
     name: str
     short_bio: str
     years_of_experience: int
+    photo_url: AnyUrl | None
 
 
 class CompanyBaseSchema(BaseOrjsonSchema):
@@ -16,6 +17,7 @@ class CompanyBaseSchema(BaseOrjsonSchema):
 
     name: str
     summary: str
+    photo_url: AnyUrl | None
 
 
 class CompanyCreateSchema(CompanyBaseSchema, OrjsonSchema):
