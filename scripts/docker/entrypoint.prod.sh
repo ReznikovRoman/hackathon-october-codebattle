@@ -1,6 +1,6 @@
 #!/bin/sh
 
-make migrate-local
+make -C /app migrate-local
 
 uvicorn hackathon.main:create_app --factory --host 0.0.0.0 --port 80
 
