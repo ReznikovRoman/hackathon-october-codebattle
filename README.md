@@ -1,6 +1,9 @@
 # CodeBattle Hackathon
 API for October CodeBattle Hackathon.
 
+## Live Demo
+API docs URL: http://51.250.47.81/api/v1/docs
+
 ## Stack
 [Starlite](https://starlite-api.github.io/starlite/),
 [SQLAlchemy](https://www.sqlalchemy.org/), [Alembic](https://alembic.sqlalchemy.org/en/latest/front.html),
