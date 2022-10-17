@@ -31,6 +31,13 @@ class SocialAccountFullDetailSchema(SocialAccountBaseSchema, Schema):
     advocate_id: uuid.UUID
 
 
+class AdvocateCompanySchema(Schema):
+    """Advocate's company schema."""
+
+    name: str
+    summary: str
+
+
 class AdvocateBaseSchema(BaseOrjsonSchema):
     """Advocate base schema."""
 
@@ -41,6 +48,8 @@ class AdvocateBaseSchema(BaseOrjsonSchema):
 
 class AdvocateCreateSchema(AdvocateBaseSchema, OrjsonSchema):
     """Advocate create schema."""
+
+    company_id: uuid.UUID
 
     long_bio: str
 
@@ -60,4 +69,5 @@ class AdvocateFullDetailSchema(Schema, AdvocateBaseSchema):
 
     long_bio: str
 
+    company: AdvocateCompanySchema
     social_account: SocialAccountShortDetailSchema | None

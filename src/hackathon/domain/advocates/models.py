@@ -1,21 +1,28 @@
+from __future__ import annotations
+
 import uuid
+from typing import TYPE_CHECKING
 
 from sqlalchemy import CheckConstraint, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from hackathon.lib import orm
 
-# TODO: add Advocate links
+if TYPE_CHECKING:
+    from hackathon.domain.companies.models import Company
 
 
 class Advocate(orm.Base):
     """Advocate."""
+
+    company_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("company.id"), index=True)
 
     name: Mapped[str]
     short_bio: Mapped[str]
     long_bio: Mapped[str]
     years_of_experience: Mapped[int]
 
+    company: Mapped["Company"] = relationship("Company", back_populates="advocates", lazy="subquery")
     social_account: Mapped["SocialAccount"] = relationship("SocialAccount", back_populates="advocate", uselist=False)
 
     __table_args__ = (
