@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlite import Dependency, Parameter, Provide, State
 
 from hackathon.config.settings import get_settings
-from hackathon.domain import advocates
+from hackathon.domain import advocates, companies
 from hackathon.lib.repositories.filters import BeforeAfter, CollectionFilter, LimitOffset, SearchFilter
 from hackathon.lib.repositories.types import FilterTypes
 
@@ -47,6 +47,14 @@ def provide_advocate_service(db_session: AsyncSession) -> advocates.AdvocateServ
     #  - https://python-dependency-injector.ets-labs.org/examples/fastapi-sqlalchemy.html#database
     repository = advocates.AdvocateRepository(session=db_session)
     return advocates.AdvocateService(repository=repository)
+
+
+def provide_company_service(db_session: AsyncSession) -> companies.CompanyService:
+    """Provide Company Service."""
+    # TODO: use custom session maker (not from Starlite plugin)
+    #  - https://python-dependency-injector.ets-labs.org/examples/fastapi-sqlalchemy.html#database
+    repository = companies.CompanyRepository(session=db_session)
+    return companies.CompanyService(repository=repository)
 
 
 def search_filter_provider_factory(field_name: str) -> Callable[[str], SearchFilter[uuid.UUID]]:

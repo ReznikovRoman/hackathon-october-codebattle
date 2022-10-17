@@ -17,5 +17,5 @@ ignore =
     D401
 per-file-ignores =
     # First argument of a method should be named 'self'
-    */config/**.py:N805
-    */domain/assistant/alice/schemas.py:N805
+    */config/**.py:N805,
+    */domain/companies/schemas.py:N805

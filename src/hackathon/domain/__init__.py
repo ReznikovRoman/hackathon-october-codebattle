@@ -1,3 +1,3 @@
-from . import advocates
+from . import advocates, companies
 
-__all__ = ["advocates"]
+__all__ = ["advocates", "companies"]
