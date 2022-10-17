@@ -1,0 +1,97 @@
+version: '3.9'
+
+services:
+  server:
+    restart: always
+    image: romanreznikov/hackathon-october-codebattle-backend  # TODO: use git tags
+    environment:
+      - ENV=.env
+      # Python
+      - PYTHONUNBUFFERED=1
+      # CodeBattle Hackathon
+      # App
+      - HOC_BUILD_NUMBER=0.1.0
+      - HOC_DEBUG=0
+      - HOC_ENVIRONMENT=prod
+      - HOC_LOG_LEVEL=INFO
+      - HOC_PROJECT_NAME=hackathon-codebattle
+      - HOC_PROJECT_BASE_URL=http://localhost:8000  # TODO: change URL
+      # API
+      - HOC_API_V1_STR=/api/v1
+      - HOC_API_HEALTHCHECK_PATH=/healthcheck
+      - HOC_API_DEFAULT_PAGINATION_LIMIT=10
+      - HOC_API_CONFIG_DEPENDENCY_KEY=config
+      - HOC_API_REDIS_CLIENT_DEPENDENCY_KEY=redis_client
+      - HOC_API_DB_SESSION_DEPENDENCY_KEY=db_session
+      # Database
+      - HOC_DB_ECHO=false
+      - HOC_DB_ECHO_POOL=false
+      - HOC_DB_POOL_DISABLE=false
+      - HOC_DB_POOL_MAX_OVERFLOW=10
+      - HOC_DB_POOL_SIZE=5
+      - HOC_DB_POOL_TIMEOUT=30
+      - HOC_DB_HOST=db
+      - HOC_DB_PORT=5432
+      - HOC_DB_NAME=hackathon-october-codebattle
+      - HOC_DB_USER=hackathon
+      - HOC_DB_PASSWORD=codebattle
+      # Redis
+      - HOC_REDIS_HOST=redis
+      - HOC_REDIS_PORT=6379
+      - HOC_REDIS_DB=0
+      - HOC_REDIS_DEFAULT_CHARSET=utf-8
+      - HOC_REDIS_DECODE_RESPONSES=1
+      - HOC_REDIS_RETRY_ON_TIMEOUT=1
+      # OpenAPI
+      - HOC_OPENAPI_TITLE="Hackathon CodeBattle API"
+      - HOC_OPENAPI_VERSION=0.1.0
+      - HOC_OPENAPI_CONTACT_NAME="Roman Reznikov"
+      - HOC_OPENAPI_CONTACT_EMAIL=romanreznikov.am@gmail.com
+      # Server
+      - HOC_SERVER_PORT=8000
+      - HOC_SERVER_NAME=localhost
+      - HOC_SERVER_HOSTS=http://localhost:8000  # TODO: change URL
+      - HOC_USE_STUBS=0
+      - HOC_TESTING=0
+      - HOC_CI=0
+    ports:
+      - "${HOC_SERVER_PORT}:${HOC_SERVER_PORT}"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  redis:
+    image: redis:7.0-alpine
+    volumes:
+      - /mnt/data/redis:/data
+    healthcheck:
+      test: redis-cli -p 6379 ping || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  db:
+    image: postgres:14.5-alpine
+    environment:
+      - POSTGRES_USER=${HOC_DB_USER}
+      - POSTGRES_PASSWORD=${HOC_DB_PASSWORD}
+      - POSTGRES_DB=${HOC_DB_NAME}
+    volumes:
+      - /mnt/data/postgres:/var/lib/postgresql/data/
+    healthcheck:
+      test: pg_isready -d $HOC_DB_NAME -U $HOC_DB_USER
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+x-yc-disks:
+  - device_name: compute-disk-data
+    fs_type: ext4
+    host_path: /mnt/data/redis
+    partition: 1
+  - device_name: compute-disk-data
+    fs_type: ext4
+    host_path: /mnt/data/postgres
+    partition: 1
