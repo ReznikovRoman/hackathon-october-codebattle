@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 
 from hackathon.config.settings import get_settings
-from hackathon.domain import advocates
+from hackathon.domain import advocates, companies
 from hackathon.infrastructure.db import redis
 
 __all__ = ["Container", "override_providers", "inject_db_session"]
@@ -51,6 +51,18 @@ class Container(containers.DeclarativeContainer):
     advocate_service = providers.Factory(
         advocates.AdvocateService,
         repository=advocate_repository,
+    )
+
+    # Domain -> Companies
+
+    company_repository = providers.Factory(
+        companies.CompanyRepository,
+        session=db_session,
+    )
+
+    company_service = providers.Factory(
+        companies.CompanyService,
+        repository=company_repository,
     )
 
 
