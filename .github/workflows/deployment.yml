@@ -50,9 +50,13 @@ jobs:
     steps:
       - name: Deploy project
         uses: appleboy/ssh-action@master
+        env:
+          HOC_BUILD_NUMBER: ${{ github.ref_name }}
+          HOC_OPENAPI_VERSION: ${{ github.ref_name }}
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY_ED25519 }}
           port: ${{ secrets.PORT }}
+          envs: HOC_BUILD_NUMBER,HOC_OPENAPI_VERSION
           script: sh deploy.prod.sh

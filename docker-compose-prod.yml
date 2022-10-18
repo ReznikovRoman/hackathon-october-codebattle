@@ -6,6 +6,9 @@ services:
     image: romanreznikov/hackathon-october-codebattle-backend:latest
     env_file:
       - $ENV
+    environment:
+      - HOC_BUILD_NUMBER=${HOC_BUILD_NUMBER}
+      - HOC_OPENAPI_VERSION=${HOC_OPENAPI_VERSION}
     ports:
       - "${HOC_SERVER_PORT}:${HOC_SERVER_PORT}"
     depends_on:
