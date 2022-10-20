@@ -1,14 +1,10 @@
 from collections import abc
-from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, Literal, TypeVar
 
 from sqlalchemy import select, text
 from sqlalchemy.engine import Result
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from ..exceptions import ConflictError
 from .abc import AbstractRepository
-from .exceptions import RepositoryException
 from .filters import BeforeAfter, CollectionFilter, LimitOffset, SearchFilter
 
 if TYPE_CHECKING:
@@ -18,36 +14,15 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
     from .. import orm
-    from .types import FilterTypes
+    from .types import FilterTypes, SessionFactory
 
 __all__ = [
     "SQLAlchemyRepository",
     "ModelT",
-    "wrap_sqlalchemy_exception",
 ]
 
 T = TypeVar("T")
 ModelT = TypeVar("ModelT", bound="orm.Base")
-
-
-@contextmanager
-def wrap_sqlalchemy_exception() -> Any:
-    """Do something within context to raise a `RepositoryException` chained from an original `SQLAlchemyError`.
-
-    >>> try:
-    ...     with wrap_sqlalchemy_exception():
-    ...         raise SQLAlchemyError("Original Exception")
-    ... except RepositoryException as exc:
-    ...     print(f"caught repository exception from {type(exc.__context__)}")
-    ...
-    caught repository exception from <class 'sqlalchemy.exc.SQLAlchemyError'>
-    """
-    try:
-        yield
-    except IntegrityError as e:
-        raise ConflictError from e
-    except SQLAlchemyError as e:
-        raise RepositoryException(f"An exception occurred: {e}") from e
 
 
 class SQLAlchemyRepository(AbstractRepository[ModelT]):
@@ -55,33 +30,36 @@ class SQLAlchemyRepository(AbstractRepository[ModelT]):
 
     model_type: type[ModelT]
 
-    def __init__(self, session: "AsyncSession", select_: "Select[tuple[ModelT]] | None" = None) -> None:
-        self._session = session
+    def __init__(
+        self,
+        session_factory: "SessionFactory",
+        select_: "Select[tuple[ModelT]] | None" = None,
+    ) -> None:
+        self._session_factory = session_factory
         self._select = select(self.model_type) if select_ is None else select_
 
     async def add(self, data: ModelT) -> ModelT:
-        with wrap_sqlalchemy_exception():
-            instance = await self._attach_to_session(data)
-            await self._session.flush()
-            await self._session.refresh(instance)
-            self._session.expunge(instance)
+        async with self._session_factory() as session:
+            instance = await self._attach_to_session(session, model=data)
+            await session.refresh(instance)
+            session.expunge(instance)
             return instance
 
     async def delete(self, id_: Any) -> ModelT:
-        with wrap_sqlalchemy_exception():
+        async with self._session_factory() as session:
             instance = await self.get(id_)
-            await self._session.delete(instance)
-            await self._session.flush()
-            self._session.expunge(instance)
+            await session.delete(instance)
+            await session.commit()
+            session.expunge(instance)
             return instance
 
     async def get(self, id_: Any) -> ModelT:
-        with wrap_sqlalchemy_exception():
+        async with self._session_factory() as session:
             self._filter_select_by_kwargs(**{self.id_attribute: id_})
-            self.before_get_execute(id_)
-            instance = (await self._execute()).scalar_one_or_none()
+            self.before_get_execute(session, id_)
+            instance = (await self._execute(session)).scalar_one_or_none()
             instance = self.check_not_found(instance)
-            self._session.expunge(instance)
+            session.expunge(instance)
             return instance
 
     async def list(self, *filters: "FilterTypes", **kwargs: Any) -> list[ModelT]:
@@ -97,35 +75,33 @@ class SQLAlchemyRepository(AbstractRepository[ModelT]):
                     self._filter_like_collection(field_name, query)  # noqa: F821
         self._filter_select_by_kwargs(**kwargs)
 
-        with wrap_sqlalchemy_exception():
-            self.before_list_execute(*filters, **kwargs)
-            result = await self._execute()
+        async with self._session_factory() as session:
+            self.before_list_execute(session, *filters, **kwargs)
+            result = await self._execute(session)
             instances = list(result.scalars())
             for instance in instances:
-                self._session.expunge(instance)
+                session.expunge(instance)
             return instances
 
     async def update(self, data: ModelT) -> ModelT:
-        with wrap_sqlalchemy_exception():
+        async with self._session_factory() as session:
             id_ = self.get_id_attribute_value(data)
             # this will raise for not found, and will put the item in the session
             await self.get(id_)
             # this will merge the inbound data to the instance we've just put in the session
-            instance = await self._attach_to_session(data, strategy="merge")
-            await self._session.flush()
-            await self._session.refresh(instance)
-            self._session.expunge(instance)
+            instance = await self._attach_to_session(session, model=data, strategy="merge")
+            await session.refresh(instance)
+            session.expunge(instance)
             return instance
 
     async def upsert(self, data: ModelT) -> ModelT:
-        with wrap_sqlalchemy_exception():
-            instance = await self._attach_to_session(data, strategy="merge")
-            await self._session.flush()
-            await self._session.refresh(instance)
-            self._session.expunge(instance)
+        async with self._session_factory() as session:
+            instance = await self._attach_to_session(session, model=data, strategy="merge")
+            await session.refresh(instance)
+            session.expunge(instance)
             return instance
 
-    def before_get_execute(self, id_: Any) -> None:
+    def before_get_execute(self, session: "AsyncSession", id_: Any) -> None:
         """Perform an action before executing `get` method.
 
         For example:
@@ -135,7 +111,7 @@ class SQLAlchemyRepository(AbstractRepository[ModelT]):
             ```
         """
 
-    def before_list_execute(self, *filters: "FilterTypes", **kwargs: Any) -> None:
+    def before_list_execute(self, session: "AsyncSession", *filters: "FilterTypes", **kwargs: Any) -> None:
         """Perform an action before executing `list` method.
 
         For example:
@@ -146,23 +122,29 @@ class SQLAlchemyRepository(AbstractRepository[ModelT]):
         """
 
     @classmethod
-    async def check_health(cls, db_session: "AsyncSession") -> bool:
+    async def check_health(cls, session_factory: "SessionFactory") -> bool:
         """Perform a health check on the database.
 
         Args:
-            db_session: session through which we run a check statement.
+            session_factory: scoped session factory that creates a session through which we run a check statement.
 
         Returns:
             `True` if healthy.
         """
-        return (await db_session.execute(text("SELECT 1"))).scalar_one() == 1
+        async with session_factory() as session:
+            return (await session.execute(text("SELECT 1"))).scalar_one() == 1
 
     # the following is all sqlalchemy implementation detail, and shouldn't be directly accessed
 
     def _apply_limit_offset_pagination(self, limit: int, offset: int) -> None:
         self._select = self._select.limit(limit).offset(offset)
 
-    async def _attach_to_session(self, model: ModelT, strategy: Literal["add", "merge"] = "add") -> ModelT:
+    async def _attach_to_session(
+        self,
+        session: "AsyncSession", *,
+        model: ModelT,
+        strategy: Literal["add", "merge"] = "add",
+    ) -> ModelT:
         """Attach detached instance to the session.
 
         Args:
@@ -174,13 +156,14 @@ class SQLAlchemyRepository(AbstractRepository[ModelT]):
         """
         match strategy:
             case "add":
-                self._session.add(model)
+                session.add(model)
             case "merge":
-                model = await self._session.merge(model)
+                model = await session.merge(model)
+        await session.commit()
         return model
 
-    async def _execute(self) -> Result[tuple[ModelT, ...]]:
-        return await self._session.execute(self._select)
+    async def _execute(self, session: "AsyncSession") -> Result[tuple[ModelT, ...]]:
+        return await session.execute(self._select)
 
     def _filter_in_collection(self, field_name: str, values: abc.Collection[Any]) -> None:
         if not values:

@@ -1,13 +1,12 @@
 from functools import partial
 
 from starlite import Starlite, State
-from starlite.plugins.sql_alchemy import SQLAlchemyPlugin
 
 from hackathon.api.urls import api_router
 from hackathon.config.settings import get_settings
-from hackathon.lib import compression, exceptions, logging, openapi, response, sqlalchemy_plugin, static_files
+from hackathon.lib import compression, exceptions, logging, openapi, response, static_files
 
-from .containers import Container, inject_db_session, override_providers
+from .containers import Container, override_providers
 from .dependencies import create_project_dependencies
 
 settings = get_settings()
@@ -15,7 +14,6 @@ settings = get_settings()
 
 async def on_startup(state: State, *_, container: Container, **__) -> None:
     """Startup hook."""
-    container = inject_db_session(container, state.get("session_maker_class"))
     await container.init_resources()
     container.check_dependencies()
     state.container = container
@@ -46,7 +44,6 @@ def create_app() -> Starlite:
         openapi_config=openapi.config,
         response_class=response.Response,
         route_handlers=[api_router],
-        plugins=[SQLAlchemyPlugin(config=sqlalchemy_plugin.config)],
         on_shutdown=[on_shutdown],
         on_startup=[partial(on_startup, container=container)],
         static_files_config=static_files.config,

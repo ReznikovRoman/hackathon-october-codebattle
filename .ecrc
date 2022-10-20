@@ -9,7 +9,7 @@
     "\\.txt$",
     "\\.pyc$",
     "alembic",
-    "sqlalchemy_plugin.py"
+    "postgres.py"
   ],
   "AllowedContentTypes": [],
   "PassedFiles": [],
