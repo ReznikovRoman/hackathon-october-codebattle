@@ -1,23 +1,14 @@
 import datetime
 import uuid
-from typing import TYPE_CHECKING, Callable, Final, TypeAlias, cast
+from typing import Callable, Final, TypeAlias
 
-from redis import asyncio as aioredis
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from starlite import Dependency, Parameter, Provide, State
+from starlite import Dependency, Parameter, Provide
 
 from hackathon.config.settings import get_settings
-from hackathon.domain import advocates, companies
 from hackathon.lib.repositories.filters import BeforeAfter, CollectionFilter, LimitOffset, SearchFilter
 from hackathon.lib.repositories.types import FilterTypes
 
-if TYPE_CHECKING:
-    from hackathon.containers import Container
-
 DTorNone: TypeAlias = datetime.datetime | None
-
-settings = get_settings()
 
 FILTERS_DEPENDENCY_KEY: Final[str] = "filters"
 CREATED_FILTER_DEPENDENCY_KEY: Final[str] = "created_filter"
@@ -26,35 +17,7 @@ ID_FILTER_DEPENDENCY_KEY: Final[str] = "id_filter"
 SEARCH_FILTER_DEPENDENCY_KEY: Final[str] = "search_filter"
 LIMIT_OFFSET_DEPENDENCY_KEY: Final[str] = "limit_offset"
 
-
-async def provide_redis_client(state: State) -> aioredis.Redis:
-    """Provide Redis client."""
-    container = cast("Container", state.container)
-    return await container.redis_connection()
-
-
-def provide_social_account_service(db_session: AsyncSession) -> advocates.SocialAccountService:
-    """Provide Social Account Service."""
-    # TODO: use custom session maker (not from Starlite plugin)
-    #  - https://python-dependency-injector.ets-labs.org/examples/fastapi-sqlalchemy.html#database
-    repository = advocates.SocialAccountRepository(session=db_session)
-    return advocates.SocialAccountService(repository=repository)
-
-
-def provide_advocate_service(db_session: AsyncSession) -> advocates.AdvocateService:
-    """Provide Advocate Service."""
-    # TODO: use custom session maker (not from Starlite plugin)
-    #  - https://python-dependency-injector.ets-labs.org/examples/fastapi-sqlalchemy.html#database
-    repository = advocates.AdvocateRepository(session=db_session)
-    return advocates.AdvocateService(repository=repository)
-
-
-def provide_company_service(db_session: AsyncSession) -> companies.CompanyService:
-    """Provide Company Service."""
-    # TODO: use custom session maker (not from Starlite plugin)
-    #  - https://python-dependency-injector.ets-labs.org/examples/fastapi-sqlalchemy.html#database
-    repository = companies.CompanyRepository(session=db_session)
-    return companies.CompanyService(repository=repository)
+settings = get_settings()
 
 
 def search_filter_provider_factory(field_name: str) -> Callable[[str], SearchFilter[uuid.UUID]]:
@@ -183,7 +146,6 @@ def create_project_dependencies() -> dict[str, Provide]:
     """Create project dependencies."""
     dependencies = {
         settings.api.CONFIG_DEPENDENCY_KEY: Provide(get_settings),
-        settings.api.REDIS_CLIENT_DEPENDENCY_KEY: Provide(provide_redis_client),
     }
     dependencies.update(create_collection_dependencies())
     return dependencies

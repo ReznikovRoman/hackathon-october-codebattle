@@ -1,12 +1,10 @@
 from dependency_injector import containers, providers
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import sessionmaker
 
 from hackathon.config.settings import get_settings
 from hackathon.domain import advocates, companies
-from hackathon.infrastructure.db import redis
+from hackathon.infrastructure.db import postgres, redis
 
-__all__ = ["Container", "override_providers", "inject_db_session"]
+__all__ = ["Container", "override_providers"]
 
 settings = get_settings()
 
@@ -16,6 +14,9 @@ class Container(containers.DeclarativeContainer):
 
     wiring_config = containers.WiringConfiguration(
         modules=[
+            "hackathon.api.v1.handlers.advocates",
+            "hackathon.api.v1.handlers.companies",
+            "hackathon.api.v1.handlers.social_accounts",
             "hackathon.api.v1.handlers.misc",
         ],
     )
@@ -24,7 +25,10 @@ class Container(containers.DeclarativeContainer):
 
     # Infrastructure
 
-    db_session = providers.Dependency(instance_of=AsyncSession)
+    db = providers.Singleton(
+        postgres.Database,
+        config=settings.database,
+    )
 
     redis_connection = providers.Resource(
         redis.init_redis,
@@ -35,7 +39,7 @@ class Container(containers.DeclarativeContainer):
 
     social_account_repository = providers.Factory(
         advocates.SocialAccountRepository,
-        session=db_session,
+        session_factory=db.provided.session,
     )
 
     social_account_service = providers.Factory(
@@ -45,7 +49,7 @@ class Container(containers.DeclarativeContainer):
 
     advocate_repository = providers.Factory(
         advocates.AdvocateRepository,
-        session=db_session,
+        session_factory=db.provided.session,
     )
 
     advocate_service = providers.Factory(
@@ -57,19 +61,13 @@ class Container(containers.DeclarativeContainer):
 
     company_repository = providers.Factory(
         companies.CompanyRepository,
-        session=db_session,
+        session_factory=db.provided.session,
     )
 
     company_service = providers.Factory(
         companies.CompanyService,
         repository=company_repository,
     )
-
-
-def inject_db_session(container: Container, session_maker: sessionmaker) -> Container:
-    """Inject SQLAlchemy session into container."""
-    container.db_session.override(providers.Singleton(session_maker))
-    return container
 
 
 def override_providers(container: Container, /) -> Container:
