@@ -1,6 +1,7 @@
 __all__ = [
     "compression",
     "dto",
+    "dependency_injector",
     "exceptions",
     "helpers",
     "logging",
@@ -10,6 +11,5 @@ __all__ = [
     "response",
     "schemas",
     "services",
-    "sqlalchemy_plugin",
     "static_files",
 ]
