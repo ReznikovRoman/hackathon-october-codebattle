@@ -1,7 +1,7 @@
 from collections import abc
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Generic, TypeVar
+from typing import Generic, Sequence, TypeVar
 
 T = TypeVar("T")
 
@@ -35,8 +35,8 @@ class CollectionFilter(Generic[T]):
 class SearchFilter(Generic[T]):
     """Data required to construct a `WHERE ... LIKE %...%` clause."""
 
-    # Name of the model attribute to filter on
-    field_name: str
+    # Names of model attribute to filter on
+    field_names: Sequence[str]
 
     # Search query for `LIKE` clause
     query: str

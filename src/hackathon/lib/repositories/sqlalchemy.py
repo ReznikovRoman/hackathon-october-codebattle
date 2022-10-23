@@ -1,7 +1,7 @@
 from collections import abc
-from typing import TYPE_CHECKING, Any, Literal, TypeVar
+from typing import TYPE_CHECKING, Any, Literal, Sequence, TypeVar
 
-from sqlalchemy import select, text
+from sqlalchemy import or_, select, text
 from sqlalchemy.engine import Result
 
 from .abc import AbstractRepository
@@ -71,8 +71,8 @@ class SQLAlchemyRepository(AbstractRepository[ModelT]):
                     self._filter_on_datetime_field(field_name, before, after)  # noqa: F821
                 case CollectionFilter(field_name, values):
                     self._filter_in_collection(field_name, values)  # noqa: F821
-                case SearchFilter(field_name, query):
-                    self._filter_like_collection(field_name, query)  # noqa: F821
+                case SearchFilter(field_names, query):
+                    self._filter_like_collection(field_names, query)  # noqa: F821
         self._filter_select_by_kwargs(**kwargs)
 
         async with self._session_factory() as session:
@@ -170,10 +170,14 @@ class SQLAlchemyRepository(AbstractRepository[ModelT]):
             return
         self._select = self._select.where(getattr(self.model_type, field_name).in_(values))
 
-    def _filter_like_collection(self, field_name: str, query: str | None = None) -> None:
+    def _filter_like_collection(self, field_names: Sequence[str], query: str | None = None) -> None:
         if query is None:
             return
-        self._select = self._select.where(getattr(self.model_type, field_name).like("%{query}%".format(query=query)))
+        search_args = [
+            getattr(self.model_type, field_name).ilike("%{query}%".format(query=query))
+            for field_name in field_names
+        ]
+        self._select = self._select.where(or_(*search_args))
 
     def _filter_on_datetime_field(self, field_name: str, before: "datetime | None", after: "datetime | None") -> None:
         field = getattr(self.model_type, field_name)
