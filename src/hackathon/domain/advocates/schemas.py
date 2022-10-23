@@ -46,6 +46,7 @@ class AdvocateBaseSchema(BaseOrjsonSchema):
     """Advocate base schema."""
 
     name: str
+    username: str
     short_bio: str
     years_of_experience: int
     photo_url: AnyUrl | None
