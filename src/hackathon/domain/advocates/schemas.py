@@ -11,6 +11,7 @@ class SocialAccountBaseSchema(BaseOrjsonSchema):
     github: AnyUrl | None
     linkedin: AnyUrl | None
     youtube: AnyUrl | None
+    twitter: AnyUrl | None
 
 
 class SocialAccountUpdateSchema(SocialAccountBaseSchema, OrjsonSchema):
@@ -45,6 +46,7 @@ class AdvocateBaseSchema(BaseOrjsonSchema):
     """Advocate base schema."""
 
     name: str
+    username: str
     short_bio: str
     years_of_experience: int
     photo_url: AnyUrl | None

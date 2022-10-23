@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Annotated, Final
+from typing import Annotated, Final, Sequence
 from uuid import UUID
 
 from starlite import Controller, Dependency, Partial, Provide, Router, delete, get, patch, post
@@ -18,13 +18,13 @@ from hackathon.lib.repositories.types import FilterTypes
 class AdvocateController(Controller):
     """Advocates API."""
 
-    SEARCH_FIELD: Final[str] = "name"
+    SEARCH_FIELDS: Final[Sequence[str]] = ["name", "username"]
 
     member_path = "{advocate_id:uuid}"
 
     @get(
         dependencies={
-            SEARCH_FILTER_DEPENDENCY_KEY: Provide(search_filter_provider_factory(SEARCH_FIELD)),
+            SEARCH_FILTER_DEPENDENCY_KEY: Provide(search_filter_provider_factory(SEARCH_FIELDS)),
         },
     )
     @inject

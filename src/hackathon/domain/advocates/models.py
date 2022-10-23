@@ -18,6 +18,7 @@ class Advocate(orm.Base):
     company_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("company.id"), index=True)
 
     name: Mapped[str]
+    username: Mapped[str] = mapped_column(index=True, unique=True)
     short_bio: Mapped[str]
     long_bio: Mapped[str]
     years_of_experience: Mapped[int]
@@ -39,5 +40,6 @@ class SocialAccount(orm.Base):
     github: Mapped[str | None]
     linkedin: Mapped[str | None]
     youtube: Mapped[str | None]
+    twitter: Mapped[str | None]
 
     advocate: Mapped[Advocate] = relationship("Advocate", back_populates="social_account")

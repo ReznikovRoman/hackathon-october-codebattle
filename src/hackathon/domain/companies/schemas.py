@@ -7,6 +7,7 @@ class AdvocateCompanySchema(Schema):
     """List of advocates in company."""
 
     name: str
+    username: str
     short_bio: str
     years_of_experience: int
     photo_url: AnyUrl | None

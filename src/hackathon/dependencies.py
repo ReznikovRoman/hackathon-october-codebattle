@@ -1,6 +1,6 @@
 import datetime
 import uuid
-from typing import Callable, Final, TypeAlias
+from typing import Callable, Final, Sequence, TypeAlias
 
 from starlite import Dependency, Parameter, Provide
 
@@ -20,11 +20,11 @@ LIMIT_OFFSET_DEPENDENCY_KEY: Final[str] = "limit_offset"
 settings = get_settings()
 
 
-def search_filter_provider_factory(field_name: str) -> Callable[[str], SearchFilter[uuid.UUID]]:
+def search_filter_provider_factory(field_names: Sequence[str]) -> Callable[[str], SearchFilter[uuid.UUID]]:
     """Build `SearchFilter` provider.
 
     Args:
-        field_name: Name of the model attribute to filter on.
+        field_names: Names of model attributes to filter on.
     """
 
     def provide_search_filter(
@@ -38,7 +38,7 @@ def search_filter_provider_factory(field_name: str) -> Callable[[str], SearchFil
         query = q
         if query is not None:
             query = query.strip()
-        return SearchFilter(field_name=field_name, query=query)
+        return SearchFilter(field_names=field_names, query=query)
 
     return provide_search_filter
 
