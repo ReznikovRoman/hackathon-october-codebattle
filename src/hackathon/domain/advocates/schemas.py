@@ -11,6 +11,7 @@ class SocialAccountBaseSchema(BaseOrjsonSchema):
     github: AnyUrl | None
     linkedin: AnyUrl | None
     youtube: AnyUrl | None
+    twitter: AnyUrl | None
 
 
 class SocialAccountUpdateSchema(SocialAccountBaseSchema, OrjsonSchema):

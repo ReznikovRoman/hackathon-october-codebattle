@@ -39,5 +39,6 @@ class SocialAccount(orm.Base):
     github: Mapped[str | None]
     linkedin: Mapped[str | None]
     youtube: Mapped[str | None]
+    twitter: Mapped[str | None]
 
     advocate: Mapped[Advocate] = relationship("Advocate", back_populates="social_account")
