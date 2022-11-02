@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 class APIClient(AsyncClient):
     """Httpx test client."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
     async def get(self, *args, **kwargs) -> APIResponse:

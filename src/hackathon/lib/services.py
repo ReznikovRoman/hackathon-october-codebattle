@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from .repositories.abc import AbstractRepository
@@ -16,7 +18,7 @@ class Service(Generic[ModelT, RepositoryT]):
         repository: Instance conforming to `AbstractRepository` interface.
     """
 
-    def __init__(self, repository: "RepositoryT") -> None:
+    def __init__(self, repository: RepositoryT) -> None:
         self.repository = repository
 
     # noinspection PyMethodMayBeStatic
@@ -49,7 +51,7 @@ class Service(Generic[ModelT, RepositoryT]):
     async def authorize_list(self) -> None:
         """Authorize collection access."""
 
-    async def list(self, *filters: "FilterTypes", **kwargs: Any) -> list[ModelT]:
+    async def list(self, *filters: FilterTypes, **kwargs: Any) -> list[ModelT]:
         """Wraps repository scalars operation.
 
         Args:
