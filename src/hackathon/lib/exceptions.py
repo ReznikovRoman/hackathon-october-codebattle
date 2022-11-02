@@ -122,7 +122,8 @@ def starlite_validation_exception_to_http_response(_: Request, exc: ValidationEx
     Returns: Exception response appropriate to the type of original exception.
     """
     content = BaseErrorResponse(error=ErrorResponse(message=exc.detail, code="validation_error", extra=exc.extra))
-    return Response(media_type=MediaType.JSON, content=content.json(), status_code=HTTPStatus.BAD_REQUEST)
+    return Response(
+        media_type=MediaType.JSON, content=content.json(exclude_none=True), status_code=HTTPStatus.BAD_REQUEST)
 
 
 def project_api_exception_to_http_response(request: Request, exc: HackathonAPIError) -> Response:
