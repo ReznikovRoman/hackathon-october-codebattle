@@ -2,7 +2,7 @@
 API for October CodeBattle Hackathon.
 
 ## Live Demo
-**[🚧 Currently offline for maintenance]** API docs: http://51.250.44.9/api/v1/docs
+API docs: http://51.250.44.9/api/v1/docs
 
 ## Stack
 [Starlite](https://starlite-api.github.io/starlite/),
