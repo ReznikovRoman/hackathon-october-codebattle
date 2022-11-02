@@ -1,6 +1,6 @@
 from functools import partial
 
-from starlite import Starlite, State
+from starlite import Starlite, State, ValidationException
 
 from hackathon.api.urls import api_router
 from hackathon.config.settings import get_settings
@@ -38,6 +38,7 @@ def create_app() -> Starlite:
         dependencies=dependencies,
         exception_handlers={
             exceptions.HackathonAPIError: exceptions.project_api_exception_to_http_response,
+            ValidationException: exceptions.starlite_validation_exception_to_http_response,
             Exception: exceptions.server_exception_to_http_response,
         },
         logging_config=logging.config,

@@ -2,7 +2,7 @@ import uuid
 from typing import TypeVar
 
 from orjson import orjson
-from pydantic import BaseModel
+from pydantic import BaseModel, Extra
 from pydantic.generics import GenericModel
 
 SchemaT = TypeVar("SchemaT", bound="OrjsonSchema")
@@ -42,6 +42,9 @@ class ErrorResponse(BaseOrjsonSchema):
 
     message: str = "Server error"
     code: str = "server_error"
+
+    class Config:
+        extra = Extra.allow
 
 
 class BaseErrorResponse(GenericModel):
