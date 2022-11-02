@@ -1,12 +1,9 @@
-from __future__ import annotations
-
 from contextlib import AbstractAsyncContextManager
-from typing import TYPE_CHECKING, Callable
+from typing import Callable
+
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from .filters import BeforeAfter, CollectionFilter, LimitOffset, SearchFilter
 
-if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncSession
-
 FilterTypes = BeforeAfter | CollectionFilter | SearchFilter | LimitOffset
-SessionFactory = Callable[..., AbstractAsyncContextManager["AsyncSession"]]
+SessionFactory = Callable[..., AbstractAsyncContextManager[AsyncSession]]

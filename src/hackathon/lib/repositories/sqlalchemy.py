@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections import abc
 from typing import TYPE_CHECKING, Any, Literal, Sequence, TypeVar
 
@@ -32,8 +34,8 @@ class SQLAlchemyRepository(AbstractRepository[ModelT]):
 
     def __init__(
         self,
-        session_factory: "SessionFactory",
-        select_: "Select[tuple[ModelT]] | None" = None,
+        session_factory: SessionFactory,
+        select_: Select[tuple[ModelT]] | None = None,
     ) -> None:
         self._session_factory = session_factory
         self._select = select(self.model_type) if select_ is None else select_
@@ -62,7 +64,7 @@ class SQLAlchemyRepository(AbstractRepository[ModelT]):
             session.expunge(instance)
             return instance
 
-    async def list(self, *filters: "FilterTypes", **kwargs: Any) -> list[ModelT]:
+    async def list(self, *filters: FilterTypes, **kwargs: Any) -> list[ModelT]:
         for filter_ in filters:
             match filter_:
                 case LimitOffset(limit, offset):
@@ -101,7 +103,7 @@ class SQLAlchemyRepository(AbstractRepository[ModelT]):
             session.expunge(instance)
             return instance
 
-    def before_get_execute(self, session: "AsyncSession", id_: Any) -> None:
+    def before_get_execute(self, session: AsyncSession, id_: Any) -> None:
         """Perform an action before executing `get` method.
 
         For example:
@@ -111,7 +113,7 @@ class SQLAlchemyRepository(AbstractRepository[ModelT]):
             ```
         """
 
-    def before_list_execute(self, session: "AsyncSession", *filters: "FilterTypes", **kwargs: Any) -> None:
+    def before_list_execute(self, session: AsyncSession, *filters: FilterTypes, **kwargs: Any) -> None:
         """Perform an action before executing `list` method.
 
         For example:
@@ -122,7 +124,7 @@ class SQLAlchemyRepository(AbstractRepository[ModelT]):
         """
 
     @classmethod
-    async def check_health(cls, session_factory: "SessionFactory") -> bool:
+    async def check_health(cls, session_factory: SessionFactory) -> bool:
         """Perform a health check on the database.
 
         Args:
@@ -141,7 +143,7 @@ class SQLAlchemyRepository(AbstractRepository[ModelT]):
 
     async def _attach_to_session(
         self,
-        session: "AsyncSession", *,
+        session: AsyncSession, *,
         model: ModelT,
         strategy: Literal["add", "merge"] = "add",
     ) -> ModelT:
@@ -162,7 +164,7 @@ class SQLAlchemyRepository(AbstractRepository[ModelT]):
         await session.commit()
         return model
 
-    async def _execute(self, session: "AsyncSession") -> Result[tuple[ModelT, ...]]:
+    async def _execute(self, session: AsyncSession) -> Result[tuple[ModelT, ...]]:
         return await session.execute(self._select)
 
     def _filter_in_collection(self, field_name: str, values: abc.Collection[Any]) -> None:
@@ -179,7 +181,7 @@ class SQLAlchemyRepository(AbstractRepository[ModelT]):
         ]
         self._select = self._select.where(or_(*search_args))
 
-    def _filter_on_datetime_field(self, field_name: str, before: "datetime | None", after: "datetime | None") -> None:
+    def _filter_on_datetime_field(self, field_name: str, before: datetime | None, after: datetime | None) -> None:
         field = getattr(self.model_type, field_name)
         if before is not None:
             self._select = self._select.where(field < before)

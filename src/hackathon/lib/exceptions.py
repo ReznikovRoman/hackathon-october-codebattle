@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from starlette.middleware.errors import ServerErrorMiddleware
 from starlette.responses import Response
 
-from starlite import MediaType
+from starlite import MediaType, ValidationException
 from starlite.connection import Request
 
 from .schemas import BaseErrorResponse, ErrorResponse
@@ -110,6 +110,20 @@ def after_exception_hook_handler(exc: Exception, scope: "Scope", state: "State")
 def _create_error_response_from_starlite_middleware(request: Request, exc: Exception) -> Response:
     server_middleware = ServerErrorMiddleware(app=request.app)
     return server_middleware.debug_response(request=request, exc=exc)
+
+
+def starlite_validation_exception_to_http_response(_: Request, exc: ValidationException) -> Response:
+    """Transform starlite validation exception to project specific HTTP exceptions.
+
+    Args:
+        _: The request that experienced the exception.
+        exc: Exception raised during handling of the request.
+
+    Returns: Exception response appropriate to the type of original exception.
+    """
+    content = BaseErrorResponse(error=ErrorResponse(message=exc.detail, code="validation_error", extra=exc.extra))
+    return Response(
+        media_type=MediaType.JSON, content=content.json(exclude_none=True), status_code=HTTPStatus.BAD_REQUEST)
 
 
 def project_api_exception_to_http_response(request: Request, exc: HackathonAPIError) -> Response:

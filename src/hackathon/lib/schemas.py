@@ -1,5 +1,5 @@
 import uuid
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from orjson import orjson
 from pydantic import BaseModel
@@ -42,6 +42,7 @@ class ErrorResponse(BaseOrjsonSchema):
 
     message: str = "Server error"
     code: str = "server_error"
+    extra: Any | None = None
 
 
 class BaseErrorResponse(GenericModel):

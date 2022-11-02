@@ -1,4 +1,4 @@
-orjson==3.8.0
+orjson==3.8.1
 pydantic==1.10.2
 requests==2.28.1
 aiohttp==3.8.3
@@ -9,20 +9,20 @@ backoff==2.2.1
 python-jose==3.3.0
 dependency-injector==4.40.0
 
-starlite==1.28.0
+starlite==1.35.1
 starlite-jwt==1.4.0
 
 redis==4.3.4
-redis-om==0.0.27
+redis-om==0.1.0
 hiredis==2.0.0
-asyncpg==0.26.0
-# SQLAlchemy 2
-https://github.com/sqlalchemy/sqlalchemy/archive/cb0dd78f584cea4f169a47a2f4660300f4a6e081.zip
+asyncpg==0.27.0
+# SQLAlchemy 2.0
+https://github.com/sqlalchemy/sqlalchemy/archive/7249fa4a51f20c6c62ba94241900600023662bdb.zip
 alembic==1.8.1
 
 loguru==0.6.0
 
 gunicorn==20.1.0
-uvicorn==0.18.3
+uvicorn==0.19.0
 uvloop==0.17.0
 greenlet==1.1.3

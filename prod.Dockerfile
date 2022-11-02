@@ -1,5 +1,5 @@
 # Base image
-FROM python:3.10-slim as builder
+FROM python:3.11-slim as builder
 
 # Configure environment variables
 ENV PYTHONUNBUFFERED 1
@@ -31,7 +31,7 @@ RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requir
 # Final
 
 # Base image
-FROM python:3.10-slim
+FROM python:3.11-slim
 
 # Configure environment variables
 ENV PYTHONUNBUFFERED 1
