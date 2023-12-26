@@ -8,16 +8,14 @@ from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 from orjson import dumps, loads
-from sqlalchemy import event, text
+from sqlalchemy import event
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession, async_scoped_session, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 
-from starlite import Starlite
-
 from hackathon.config.settings import DatabaseSettings
 from hackathon.lib.exceptions import ConflictError
-from hackathon.lib.repositories.exceptions import RepositoryError
+from hackathon.lib.repositories.exceptions import RepositoryException
 
 if TYPE_CHECKING:
     from hackathon.lib.repositories.types import SessionFactory
@@ -93,61 +91,16 @@ class Database:
     async def session(self) -> SessionFactory:
         session: AsyncSession = self._async_session_factory()
         try:
-            print("SESSION: OPEN")
             yield session
         except IntegrityError as exc:
-            print("SESSION: EXCEPTION")
             await session.rollback()
             raise ConflictError from exc
         except SQLAlchemyError as exc:
-            print("SESSION: EXCEPTION")
             await session.rollback()
-            raise RepositoryError(f"An exception occurred: {exc}") from exc
+            raise RepositoryException(f"An exception occurred: {exc}") from exc
         except Exception as exc:
-            print("SESSION: EXCEPTION")
             logging.exception("Session rollback because of exception.")
             await session.rollback()
-            raise RepositoryError(f"An exception occurred: {exc}") from exc
+            raise RepositoryException(f"An exception occurred: {exc}") from exc
         finally:
-            print("SESSION: CLOSE")
             await session.close()
-
-
-async def get_db(config: DatabaseSettings, app: Starlite):
-    _engine = create_async_engine(
-        config.URL,
-        echo=config.ECHO,
-        echo_pool=config.ECHO_POOL,
-        json_serializer=partial(dumps, default=_default),
-        max_overflow=config.POOL_MAX_OVERFLOW,
-        pool_size=config.POOL_SIZE,
-        pool_timeout=config.POOL_TIMEOUT,
-        poolclass=NullPool if config.POOL_DISABLE else None,
-    )
-    _async_session_factory = async_scoped_session(
-        session_factory=async_sessionmaker(_engine, expire_on_commit=False, class_=AsyncSession),
-        scopefunc=asyncio.current_task,
-    )
-    session: AsyncSession = _async_session_factory()
-    setattr(app.state, "_sqlalchemy_repository_session", session)
-    yield session
-    delattr(app.state, "_sqlalchemy_repository_session")
-    await session.close()
-
-
-class Repo:
-    def __init__(self, session: AsyncSession) -> None:
-        self.session = session
-
-    async def get(self):
-        print("REPO")
-        return (await self.session.execute(text("XXX"))).scalar_one()
-
-
-class Service:
-    def __init__(self, repo: Repo) -> None:
-        self.repo = repo
-
-    async def execute(self):
-        print("SERVICE")
-        return await self.repo.get() == 1

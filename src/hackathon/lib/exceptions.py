@@ -2,7 +2,6 @@ import logging
 from http import HTTPStatus
 from typing import TYPE_CHECKING
 
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from starlette.middleware.errors import ServerErrorMiddleware
 from starlette.responses import Response
 
@@ -46,10 +45,6 @@ class APIErrorMixin:
 
 class BaseHackathonError(Exception):
     """Base service error."""
-
-
-class RepositoryError(BaseHackathonError):
-    """Base repository exception type."""
 
 
 class HackathonAPIError(APIErrorMixin, BaseHackathonError):
@@ -96,7 +91,7 @@ class RequiredHeaderMissingError(HackathonAPIError):
     status_code = HTTPStatus.BAD_REQUEST
 
 
-async def after_exception_hook_handler(exc: Exception, scope: "Scope", state: "State") -> None:
+def after_exception_hook_handler(exc: Exception, scope: "Scope", state: "State") -> None:
     """Logs exception and returns appropriate response.
 
     Args:
@@ -110,10 +105,6 @@ async def after_exception_hook_handler(exc: Exception, scope: "Scope", state: "S
         state.dict(),
         exc_info=exc,
     )
-    if db_session := state.get("_sqlalchemy_repository_session", None):
-        logging.exception("Session rollback because of exception.")
-        await db_session.rollback()
-        await db_session.close()
 
 
 def _create_error_response_from_starlite_middleware(request: Request, exc: Exception) -> Response:
@@ -159,10 +150,6 @@ def server_exception_to_http_response(request: Request, exc: Exception) -> Respo
 
     Returns: Exception response appropriate to the type of original exception.
     """
-    if isinstance(exc, IntegrityError):
-        raise ConflictError from exc
-    elif isinstance(exc, SQLAlchemyError):
-        raise RepositoryError(f"An exception occurred: {exc}") from exc
     if request.app.debug:
         return _create_error_response_from_starlite_middleware(request, exc)
     status_code = HTTPStatus.INTERNAL_SERVER_ERROR
