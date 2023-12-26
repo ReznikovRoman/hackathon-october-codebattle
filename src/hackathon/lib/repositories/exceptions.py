@@ -1,1 +1,5 @@
-from hackathon.lib.exceptions import RepositoryError  # noqa
+from ..exceptions import BaseHackathonError
+
+
+class RepositoryException(BaseHackathonError):
+    """Base repository exception type."""

@@ -4,8 +4,8 @@ attrs==22.1.0 \
     # via
     #   -c requirements.txt
     #   flake8-multiline-containers
-editorconfig-checker==2.7.3 \
-    --hash=sha256:69261f55585f0a4897b5534806bd170289d11b4825137411c1e9e5f2c1c5dbc2
+editorconfig-checker==2.4.0 \
+    --hash=sha256:1f7839df7d967d95f0cf2ed6a42a0f456c65072d2ffcff1fedc0eac62ed236ea
     # via -r requirements.lint.in
 flake8==4.0.1 \
     --hash=sha256:479b1304f72536a55948cb40a32dce8bb0ffe3501e26eaf292c7e60eb5e0428d \
@@ -41,9 +41,9 @@ flake8-variables-names==0.0.5 \
     --hash=sha256:30133e14ee2300e13a60393a00f74d98110c76070ac67d1ab91606f02824a7e1 \
     --hash=sha256:e3277031696bbe10b5132b49938cde1d70fcae9561533b7bd7ab8e69cb27addb
     # via -r requirements.lint.in
-isort==5.13.2 \
-    --hash=sha256:48fdfcb9face5d58a4f6dde2e72a1fb8dcaf8ab26f95ab49fab84c2ddefb0109 \
-    --hash=sha256:8ca5e72a8d85860d5a3fa69b8745237f2939afe12dbf656afbcb47fe72d947a6
+isort==5.10.1 \
+    --hash=sha256:6f62d78e2f89b4500b080fe3a81690850cd254227f27f75c3a0c491a1f351ba7 \
+    --hash=sha256:e8443a5e7a020e9d7f97f1d7d9cd17c88bcb3bc7e218bf9cf5095fe550be2951
     # via -r requirements.lint.in
 mccabe==0.6.1 \
     --hash=sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42 \
